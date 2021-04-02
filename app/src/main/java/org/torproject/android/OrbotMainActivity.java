@@ -6,6 +6,7 @@ package org.torproject.android;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -24,6 +25,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.service.quicksettings.TileService;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -73,6 +75,7 @@ import org.torproject.android.ui.hiddenservices.permissions.PermissionManager;
 import org.torproject.android.ui.hiddenservices.providers.HSContentProvider;
 import org.torproject.android.ui.onboarding.BridgeWizardActivity;
 import org.torproject.android.ui.onboarding.OnboardingActivity;
+import org.torproject.android.ui.quicksettings.QuickSettingsTileService;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -342,12 +345,15 @@ public class OrbotMainActivity extends AppCompatActivity implements OrbotConstan
     }
 
     private void toggleTor() { // UI entry point for  (dis)connecting to Tor
-        if (torStatus.equals(TorServiceConstants.STATUS_OFF)) {
+        if (torStatus.equals(STATUS_OFF)) {
             lblStatus.setText(getString(R.string.status_starting_up));
             startTor();
         } else {
             lblStatus.setText(getString(R.string.status_shutting_down));
             stopTor();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            TileService.requestListeningState(this, new ComponentName(this, QuickSettingsTileService.class));
         }
     }
 
@@ -1052,6 +1058,9 @@ public class OrbotMainActivity extends AppCompatActivity implements OrbotConstan
         mTxtOrbotLog.setText("");
     }
 
+    /*
+    @ Timo: could be interesting to get status
+     */
     /**
      * Request tor status without starting it
      * {@link TorServiceConstants#ACTION_START} {@link Intent} to
@@ -1240,6 +1249,9 @@ public class OrbotMainActivity extends AppCompatActivity implements OrbotConstan
                     oma.lblPorts.setText(String.format(Locale.getDefault(), "SOCKS: %d | HTTP: %d", socksPort, httpPort));
                     break;
 
+                    /*
+                    @Timo could be intersting for getting tor status
+                     */
                 default:
                     String newTorStatus = msg.getData().getString("status");
                     String log = (String) msg.obj;

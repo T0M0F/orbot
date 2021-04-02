@@ -1260,6 +1260,7 @@ public class OrbotService extends VpnService implements TorServiceConstants, Orb
     }
 
     protected void sendCallbackStatus(String currentStatus) {
+        System.out.println("-----------------------------sendCallbackStatus() " + currentStatus + "-----------------------------");
         mCurrentStatus = currentStatus;
         Intent intent = getActionStatusIntent(currentStatus);
         sendBroadcastOnlyToOrbot(intent); // send for Orbot internals, using secure local broadcast
